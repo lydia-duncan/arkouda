@@ -11,6 +11,8 @@ import warnings
 import json, struct
 import numpy as np
 
+import arkouda_server as ak_s
+
 # stuff for zmq connection
 pspStr = None
 context = None
@@ -39,6 +41,8 @@ def set_defaults():
 def connect(server = "localhost", port = 5555):
     global v, context, socket, pspStr, serverPid, connected
 
+    ak_s.chpl_setup(1)
+    return
     if connected == False:
         print(zmq.zmq_version())
         
@@ -82,7 +86,8 @@ def disconnect():
 # message arkouda server to shutdown server
 def shutdown():
     global v, context, socket, pspStr, connected
-    
+    ak_s.chpl_cleanup()
+    return
     # send shutdown message to server
     message = "shutdown"
     if v: print("[Python] Sending request: %s" % message)
@@ -96,21 +101,21 @@ def shutdown():
 def generic_msg(message, send_bytes=False, recv_bytes=False):
     global v, context, socket
     if send_bytes:
-        socket.send(message)
+        new_message = ak_s.generic_msg(message)
     else:
         if v: print("[Python] Sending request: %s" % message)
-        socket.send_string(message)
+        new_message = ak_s.generic_msg(message.encode())
     if recv_bytes:
-        message = socket.recv()
-        if message.startswith(b"Error:"): raise RuntimeError(message.decode())
-        elif message.startswith(b"Warning:"): warnings.warn(message)
+        if new_message.startswith(b"Error:"): raise RuntimeError(new_message.decode())
+        elif new_message.startswith(b"Warning:"): warnings.warn(new_message)
+        return new_message
     else:
-        message = socket.recv_string()
+        message = new_message.decode()
         if v: print("[Python] Received response: %s" % message)
         # raise errors sent back from the server
         if message.startswith("Error:"): raise RuntimeError(message)
         elif message.startswith("Warning:"): warnings.warn(message)
-    return message
+        return message
 
 # supported dtypes
 structDtypeCodes = {'int64': 'q',
