@@ -106,6 +106,7 @@ def generic_msg(message, send_bytes=False, recv_bytes=False):
         if v: print("[Python] Sending request: %s" % message)
         new_message = ak_s.generic_msg(message.encode())
     if recv_bytes:
+        if v: print("[Python] Received bytes response: %s" % new_message.decode())
         if new_message.startswith(b"Error:"): raise RuntimeError(new_message.decode())
         elif new_message.startswith(b"Warning:"): warnings.warn(new_message)
         return new_message

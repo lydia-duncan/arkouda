@@ -8,7 +8,7 @@ import sys
 
 import arkouda as ak
 
-ak.v = False
+ak.v = True
 if len(sys.argv) > 1:
     ak.connect(server=sys.argv[1], port=sys.argv[2])
 else:
@@ -18,7 +18,8 @@ a = ak.arange(0, 10, 1)
 b = np.linspace(10, 20, 10)
 c = ak.array(b)
 d = a + c
-    
+e = d.to_ndarray()
+
 a = ak.ones(10)
 a[::2] = 0
 print(a)

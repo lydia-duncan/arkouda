@@ -100,7 +100,7 @@ export proc generic_msg(in reqMsg: string): string {
   // send count for now
   if v {
 	  if cmd == "tondarray" {
-      writeln("repMsg:"," <binary-data>");
+      writeln("repMsg:"," <binary-data> of size ", repMsg.size: string);
 	  } else {
 	    writeln("repMsg:",repMsg);
 	  }
